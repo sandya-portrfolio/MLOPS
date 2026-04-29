@@ -1,88 +1,63 @@
-# MLOPS
-Build scalable MLOps pipelines with Git, Docker, and CI/CD integration.
-Implement MLFlow and DVC for model versioning and experiment tracking.
-Deploy end-to-end ML models with AWS SageMaker and Huggingface.
-Automate ETL pipelines and ML workflows using Apache Airflow and Astro.
-Monitor ML systems using Grafana and PostgreSQL for real-time insights.
+## Telco Churn – End-to-End ML Project
+### Purpose
 
-1. project structure creation:
-  mkdir -p \
-  data/raw data/processed data/external \
-  notebooks \
-  src/{data,features,models,utils} \
-  app \
-  configs \
-  scripts \
-  tests \
-  .github/workflows \
-  docker \
-  great_expectations \
-  mlruns \
-  artifacts
+Build and ship a full machine-learning solution for predicting customer churn in a telecom setting—from data prep and modeling to an API + web UI deployed on AWS.
 
-2. readme.md file
-3. cat > README.md << 'EOF'
+### Problem solved & benefits
 
-# Telco Customer Churn — MLE Project
+- Faster decisions: Predicts which customers are likely to churn so teams can act before they leave.
+- Operationalized ML: Model is accessible via a REST API and a simple UI; anyone can test it without notebooks.
+- Repeatable delivery: CI/CD + containers mean every change can be rebuilt, tested, and redeployed in a consistent way.
+- Traceable experiments: MLflow tracks runs, metrics, and artifacts for reproducibility and auditing.
 
-Binary classification with full lifecycle:
+### What I built
 
-- Tracking + registry: MLflow
-- Data checks: Great Expectations
-- API: FastAPI
-- CI: GitHub Actions
-- Container: Docker
-- Cloud target: AWS ECS (works with GCP Cloud Run or Azure App Service too)
+- Data & Modeling: Feature engineering + XGBoost classifier; experiments logged to MLflow.
+- Model tracking: Runs, metrics, and the serialized model logged under a named MLflow experiment.
+- Inference service: FastAPI app exposing /predict (POST) and a root health check /.
+- Web UI: Gradio interface mounted at /ui for quick, shareable manual testing.
+- Containerization: Docker image with uvicorn entrypoint (src.app.main:app) listening on port 8000.
+- CI/CD: GitHub Actions builds the image and pushes to Docker Hub; optionally triggers an ECS service update.
+- Orchestration: AWS ECS Fargate runs the container (serverless).
+- Networking: Application Load Balancer (ALB) on HTTP:80 forwarding to a Target Group (IP targets on HTTP:8000).
+- Security: Security groups scoped to allow ALB inbound 80 from the internet, and task inbound 8000 from the ALB SG.
+- Observability: CloudWatch Logs for container stdout/stderr and ECS service events.
 
-# Quick start
+### Deployment flow (high-level)
 
-- uv: see below
-- venv fallback: see below
+- Push to main → GitHub Actions builds the Docker image and pushes it to Docker Hub.
+- ECS service is updated (manually or via the workflow) to force a new deployment.
+- ALB health checks hit / on port 8000; once healthy, traffic is routed to the new task.
+- Users call POST /predict or open the Gradio UI at /ui via the ALB DNS.
 
-EOF
+### Roadblocks & how we solved them
 
-3. create requirement.txt
-   echo -e "pandas\nnumpy\nscikit-learn\nmlflow\nfastapi\nuvicorn\npydantic\npython-dotenv\njoblib\ngreat-expectations\npytest" > requirements.txt
+Unhealthy targets behind ALB
 
-5. uv install requirements
-Python
+- Cause: App didn’t respond at the health-check path; listener/target port mismatches.
+- Fixes: Added GET / health endpoint; confirmed ALB listener on 80 forwards to TG on 8000; TG health check path set to /.
 
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install --upgrade pip
-pip install -r requirements.txt
+Module import error in container (ModuleNotFoundError: serving)
 
-**Turn Notebook into Python Scripts (Modules)**
-🔹 Data & Preprocessing Scripts
-Loading raw data
-Running data quality checks (Great Expectations)
-Preprocessing (cleaning, transformations)
-🔹 Feature Engineering Script
-Encoding (binary + one-hot)
-Handling categorical/numerical transformations
-🔹 Model Training Script
-Training ML models
-Hyperparameter tuning (Optuna)
-Evaluation (metrics, sanity checks, tests)
-🔹 Pipeline Orchestration Script (run_pipeline.py)
-Ties everything into a reproducible training flow
-Runs sequentially:
-load → validate → preprocess → feature engineering
-🔹 Experiment Tracking (MLflow)
-Every run captured in mlruns/
-Logs include:
-Artifacts: trained model (model.pkl)
-Metrics: accuracy, ROC AUC, log loss, etc.
-Parameters: hyperparameters, preprocessing details
-Versioning: full run history for reproducibility & traceability
-data_loader.py
-   ↓
-features.py
-   ↓
-models.py
-   ↓
-tests/
-   ↓
-run_pipeline.py
-   ↓
-mlflow_tracking.py
+- Cause: Python path in the image didn’t include src/.
+- Fixes: Set PYTHONPATH=/app/src in the Dockerfile; corrected uvicorn app path to src.app.main:app.
+
+ALB DNS timing out
+
+- Cause: Security group rules not aligned with traffic flow.
+- Fixes: ALB SG allows inbound 80 from 0.0.0.0/0; task SG allows inbound 8000 from the ALB SG; outbound open.
+
+ECS redeploy not picking up the new image
+
+- Cause: Service still running previous task definition.
+- Fixes: Force new deployment (CLI or console) after pushing the new image; optional step added to CI.
+
+Gradio UI error (“No runs found in experiment”)
+
+- Cause: Inference/UI expected an MLflow-logged model but couldn’t resolve a run.
+- Fixes: Standardized MLflow experiment name and model logging in training; inference loads the logged model consistently (and a local path for dev).
+
+Local testing vs. prod paths
+
+- Cause: MLflow artifact URIs differ locally vs. in container.
+- Fixes: For local dev, load via direct ./mlruns/.../artifacts/model; in prod, container loads the packaged model path used at build time.
