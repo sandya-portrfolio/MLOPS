@@ -41,7 +41,10 @@ Binary classification with full lifecycle:
 
 EOF
 
-3. uv install requirements
+3. create requirement.txt
+   echo -e "pandas\nnumpy\nscikit-learn\nmlflow\nfastapi\nuvicorn\npydantic\npython-dotenv\njoblib\ngreat-expectations\npytest" > requirements.txt
+
+5. uv install requirements
 Python
 
 python -m venv .venv
