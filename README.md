@@ -51,3 +51,38 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install --upgrade pip
 pip install -r requirements.txt
+
+**Turn Notebook into Python Scripts (Modules)**
+🔹 Data & Preprocessing Scripts
+Loading raw data
+Running data quality checks (Great Expectations)
+Preprocessing (cleaning, transformations)
+🔹 Feature Engineering Script
+Encoding (binary + one-hot)
+Handling categorical/numerical transformations
+🔹 Model Training Script
+Training ML models
+Hyperparameter tuning (Optuna)
+Evaluation (metrics, sanity checks, tests)
+🔹 Pipeline Orchestration Script (run_pipeline.py)
+Ties everything into a reproducible training flow
+Runs sequentially:
+load → validate → preprocess → feature engineering
+🔹 Experiment Tracking (MLflow)
+Every run captured in mlruns/
+Logs include:
+Artifacts: trained model (model.pkl)
+Metrics: accuracy, ROC AUC, log loss, etc.
+Parameters: hyperparameters, preprocessing details
+Versioning: full run history for reproducibility & traceability
+data_loader.py
+   ↓
+features.py
+   ↓
+models.py
+   ↓
+tests/
+   ↓
+run_pipeline.py
+   ↓
+mlflow_tracking.py
