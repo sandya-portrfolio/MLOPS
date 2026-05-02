@@ -102,9 +102,23 @@ mlops-sagemaker-pipeline/
 ### Step 1: Clone Repository
 
 ```
-git clone <your-repo-url>
+git clone https://github.com/sandya-portrfolio/MLOPS/edit/main/mlops-sagemaker.git
 cd mlops-sagemaker-pipeline
 ```
+Setup Instructions
+
+### Step 2: Create Environment (Conda)
+```bash
+conda deactivate
+conda create -n sagemaker-mlops python=3.10 -y
+conda activate sagemaker-mlops
+```
+
+### Step 3: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
 
 ### Step 2: Install Dependencies
 
