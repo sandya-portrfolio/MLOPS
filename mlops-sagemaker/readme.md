@@ -38,41 +38,41 @@ Visual Studio Code / Jupyter Notebook
 ##  Workflow
 
 ### 1. Data Ingestion
-
 * Load dataset using Pandas
 * Perform preprocessing and validation
 * Split into train and test datasets
 * Upload datasets to AWS S3
 
 ### 2. Model Training
-
 * Use SageMaker SKLearn Estimator
 * Train model on SageMaker-managed instances
+* Log parameters, metrics, and model artifacts using MLflow
 * Save trained model artifacts to S3
 
 ### 3. Model Evaluation
-
 * Evaluate model using test dataset
 * Generate accuracy and classification metrics
+* Track and compare experiment results using MLflow
+  
+### 4. Model Registry
+Register trained model in MLflow Model Registry
+Manage model versions (v1, v2, etc.)
+Promote selected model to Production stage
 
-### 4. Deployment
-
+### 5. Deployment
 * Deploy trained model as a SageMaker endpoint
 * Expose endpoint for real-time predictions
 
-### 5. Inference
-
+### 6. Inference
 * Send input data to endpoint
 * Receive predictions via API
 
-### 6. Cleanup
-
+### 7. Cleanup
 * Delete endpoint after usage to avoid extra cost
 
 ---
 
 ##  Project Structure
-
 ```
 mlops-sagemaker-pipeline/
 │
@@ -94,13 +94,11 @@ mlops-sagemaker-pipeline/
 ├── README.md
 └── pipeline.py
 ```
-
 ---
 
 ##  Setup Instructions
 
 ### Step 1: Clone Repository
-
 ```
 git clone https://github.com/sandya-portrfolio/MLOPS/edit/main/mlops-sagemaker.git
 cd mlops-sagemaker-pipeline
@@ -113,33 +111,23 @@ conda deactivate
 conda create -n sagemaker-mlops python=3.10 -y
 conda activate sagemaker-mlops
 ```
-
 ### Step 3: Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
-
-
 ### Step 2: Install Dependencies
-
 ```
 pip install -r requirements.txt
 ```
-
 ### Step 3: Configure AWS CLI
-
 ```
 aws configure
 ```
-
 Provide:
-
 * AWS Access Key
 * Secret Key
 * Region (e.g., us-east-1)
-
 ---
-
 ##  Run the Project
 
 ### Train Model
@@ -147,37 +135,26 @@ Provide:
 ```
 python train.py
 ```
-
 ### Deploy Model
-
 ```
 python deploy.py
 ```
-
 ### Run Inference
-
 ```
 python inference.py
 ```
-
 ---
-
 ##  Model Used
-
 * Random Forest Classifier (Scikit-learn)
 ---
-
 ##  Key Features
-
 * End-to-end ML lifecycle implementation
 * Automated training on cloud instances
 * Scalable deployment using SageMaker endpoints
 * Cloud-based data storage using S3
-
 ---
 
 ##  Future Improvements
-
 * Add CI/CD pipeline (GitHub Actions / Jenkins)
 * Implement model versioning (MLflow integration)
 * Add monitoring & logging
@@ -185,7 +162,6 @@ python inference.py
 ---
 
 ## 🧠 Learnings
-
 * Hands-on experience with AWS SageMaker
 * Understanding of MLOps workflow
 * Cloud-based model deployment
@@ -194,13 +170,9 @@ python inference.py
 ---
 
 ## 🧹 Cleanup Note
-
 Always delete active endpoints after use to avoid unnecessary AWS charges:
 
 ```
 delete_endpoint()
 ```
-
 ---
-
-
