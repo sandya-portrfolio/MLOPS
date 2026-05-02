@@ -55,8 +55,8 @@ Visual Studio Code / Jupyter Notebook
 * Track and compare experiment results using MLflow
   
 ### 4. Model Registry
-Register trained model in MLflow Model Registry
-Manage model versions (v1, v2, etc.)
+Register trained model in MLflow Model Registry, 
+Manage model versions (v1, v2, etc.), 
 Promote selected model to Production stage
 
 ### 5. Deployment
